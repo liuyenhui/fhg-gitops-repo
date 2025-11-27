@@ -1,0 +1,19 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: fhg-frontend
+  namespace: web
+spec:
+  releaseName: fhg-frontend
+  interval: 5m
+  chart:
+    spec:
+      chart: my-frontend-chart
+      sourceRef:
+        kind: HelmRepository
+        name: fhg-frontend-charts
+        namespace: flux-system
+  valuesFrom:
+    - kind: ConfigMap
+      name: fhg-frontend-values
+      valuesKey: values.yaml

@@ -1,0 +1,4 @@
+image:
+  repository: ghcr.io/example/fhg-frontend
+  tag: prod-stable
+replicaCount: 3

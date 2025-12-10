@@ -2936,7 +2936,7 @@ spec:
             resourceFieldRef:
               containerName: manager
               resource: limits.memory
-        image: ghcr.dockerproxy.com/fluxcd/helm-controller:v1.4.5
+        image: localhost/helm-controller:v1.4.5
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
@@ -4412,7 +4412,7 @@ spec:
             resourceFieldRef:
               containerName: manager
               resource: limits.memory
-        image: ghcr.dockerproxy.com/fluxcd/kustomize-controller:v1.7.3
+        image: localhost/kustomize-controller:v1.7.3
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
@@ -5838,7 +5838,7 @@ spec:
             resourceFieldRef:
               containerName: manager
               resource: limits.memory
-        image: ghcr.dockerproxy.com/fluxcd/notification-controller:v1.7.5
+        image: localhost/notification-controller:v1.7.5
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
@@ -10080,7 +10080,7 @@ spec:
             resourceFieldRef:
               containerName: manager
               resource: limits.memory
-        image: ghcr.dockerproxy.com/fluxcd/source-controller:v1.7.4
+        image: localhost/source-controller:v1.7.4
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:

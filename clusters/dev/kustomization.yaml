@@ -3,3 +3,13 @@ kind: Kustomization
 resources:
   - ../../apps/base/frontend
   - ../../apps/base/backend
+
+configMapGenerator:
+  - name: fhg-frontend-values
+    namespace: web
+    files:
+      - values.yaml=../../apps/overlays/dev/frontend-values.yaml
+  - name: fhg-backend-values
+    namespace: api
+    files:
+      - values.yaml=../../apps/overlays/dev/backend-values.yaml

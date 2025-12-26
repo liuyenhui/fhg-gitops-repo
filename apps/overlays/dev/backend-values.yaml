@@ -1,4 +1,4 @@
 image:
-  repository: ghcr.io/example/fhg-backend
+  repository: ghcr.io/liuyenhui/fhg-backend
   tag: dev-latest
 replicaCount: 1

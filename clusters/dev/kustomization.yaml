@@ -9,7 +9,11 @@ configMapGenerator:
     namespace: web
     files:
       - values.yaml=../../apps/overlays/dev/frontend-values.yaml
+    options:
+      disableNameSuffixHash: true
   - name: fhg-backend-values
     namespace: api
     files:
       - values.yaml=../../apps/overlays/dev/backend-values.yaml
+    options:
+      disableNameSuffixHash: true

@@ -7,3 +7,5 @@ spec:
   interval: 1m
   url: oci://ghcr.io/liuyenhui/fhg-backend-chart
   type: oci
+  secretRef:
+    name: ghcr-auth

@@ -5,5 +5,5 @@ metadata:
   namespace: flux-system
 spec:
   interval: 1m
-  url: oci://ghcr.io/liuyenhui/fhg-backend
+  url: oci://ghcr.io/liuyenhui/fhg-backend-chart
   type: oci

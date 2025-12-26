@@ -5,4 +5,5 @@ metadata:
   namespace: flux-system
 spec:
   interval: 1m
-  url: oci://ghcr.io/example/charts
+  url: oci://ghcr.io/liuyenhui/fhg-frontend-chart
+  type: oci

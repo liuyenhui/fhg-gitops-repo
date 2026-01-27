@@ -5,7 +5,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 1m
-  url: oci://ghcr.io/liuyenhui/fhg-backend-chart
+  url: oci://ghcr.io/liuyenhui
   type: oci
   secretRef:
     name: ghcr-auth

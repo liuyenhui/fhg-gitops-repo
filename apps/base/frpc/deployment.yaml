@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bpg-frpc
+  namespace: frp-system
+  labels:
+    app.kubernetes.io/name: bpg-frpc
+    app.kubernetes.io/part-of: remote-access
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: bpg-frpc
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: bpg-frpc
+        app.kubernetes.io/part-of: remote-access
+    spec:
+      containers:
+        - name: frpc
+          image: snowdreamtech/frpc:0.64.0
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -ec
+          args:
+            - |
+              cat > /tmp/frpc.toml <<EOF
+              serverAddr = "${FRP_SERVER_ADDR}"
+              serverPort = 7000
+              auth.method = "token"
+              auth.token = "${FRP_TOKEN}"
+              log.to = "console"
+              log.level = "info"
+
+              [[proxies]]
+              name = "bpg-k3s-api"
+              type = "tcp"
+              localIP = "192.168.1.200"
+              localPort = 6443
+              remotePort = 6443
+
+              [[proxies]]
+              name = "ssh-bpg-master"
+              type = "tcpmux"
+              multiplexer = "httpconnect"
+              customDomains = ["bpg-master.ssh.fcihome.com"]
+              localIP = "192.168.1.200"
+              localPort = 22
+              EOF
+              exec /usr/bin/frpc -c /tmp/frpc.toml
+          env:
+            - name: FRP_SERVER_ADDR
+              value: 39.97.193.74
+            - name: FRP_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: frpc-auth
+                  key: token
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL

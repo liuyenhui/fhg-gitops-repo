@@ -1,0 +1,113 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ecommerce-postgres-initdb
+data:
+  001-schema.sql: |
+    CREATE EXTENSION IF NOT EXISTS pgcrypto;
+    CREATE EXTENSION IF NOT EXISTS vector;
+
+    CREATE TABLE IF NOT EXISTS conversation (
+      id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+      platform text NOT NULL,
+      store_id text NOT NULL,
+      external_conversation_id text,
+      customer_ref text,
+      status text NOT NULL DEFAULT 'open',
+      metadata jsonb NOT NULL DEFAULT '{}'::jsonb,
+      created_at timestamptz NOT NULL DEFAULT now(),
+      updated_at timestamptz NOT NULL DEFAULT now()
+    );
+
+    CREATE TABLE IF NOT EXISTS message (
+      id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+      conversation_id uuid REFERENCES conversation(id) ON DELETE CASCADE,
+      external_message_id text,
+      sender_type text NOT NULL,
+      content text NOT NULL,
+      raw jsonb NOT NULL DEFAULT '{}'::jsonb,
+      created_at timestamptz NOT NULL DEFAULT now()
+    );
+
+    CREATE TABLE IF NOT EXISTS decision_record (
+      id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+      decision_id text NOT NULL UNIQUE,
+      request_id text NOT NULL,
+      conversation_id uuid REFERENCES conversation(id) ON DELETE SET NULL,
+      action text NOT NULL,
+      confidence numeric(5,4),
+      risk_level text,
+      risk_flags jsonb NOT NULL DEFAULT '[]'::jsonb,
+      missing_context jsonb NOT NULL DEFAULT '[]'::jsonb,
+      trace jsonb NOT NULL DEFAULT '{}'::jsonb,
+      request_payload jsonb NOT NULL DEFAULT '{}'::jsonb,
+      response_payload jsonb NOT NULL DEFAULT '{}'::jsonb,
+      created_at timestamptz NOT NULL DEFAULT now()
+    );
+
+    CREATE TABLE IF NOT EXISTS agent_suggestion (
+      id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+      decision_record_id uuid REFERENCES decision_record(id) ON DELETE CASCADE,
+      suggestion_rank integer NOT NULL DEFAULT 1,
+      text text NOT NULL,
+      source text,
+      metadata jsonb NOT NULL DEFAULT '{}'::jsonb,
+      created_at timestamptz NOT NULL DEFAULT now()
+    );
+
+    CREATE TABLE IF NOT EXISTS human_reply (
+      id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+      decision_record_id uuid REFERENCES decision_record(id) ON DELETE SET NULL,
+      human_reply text NOT NULL,
+      used_candidate boolean NOT NULL DEFAULT false,
+      edit_distance numeric(8,4),
+      resolution_status text,
+      follow_up_required boolean NOT NULL DEFAULT false,
+      escalation_type text,
+      metadata jsonb NOT NULL DEFAULT '{}'::jsonb,
+      created_at timestamptz NOT NULL DEFAULT now()
+    );
+
+    CREATE TABLE IF NOT EXISTS knowledge_entry (
+      id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+      platform text,
+      store_id text,
+      title text NOT NULL,
+      body text NOT NULL,
+      tags text[] NOT NULL DEFAULT ARRAY[]::text[],
+      source text,
+      metadata jsonb NOT NULL DEFAULT '{}'::jsonb,
+      embedding vector(1536),
+      enabled boolean NOT NULL DEFAULT true,
+      created_at timestamptz NOT NULL DEFAULT now(),
+      updated_at timestamptz NOT NULL DEFAULT now()
+    );
+
+    CREATE TABLE IF NOT EXISTS product_snapshot (
+      id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+      platform text NOT NULL,
+      store_id text NOT NULL,
+      product_id text NOT NULL,
+      sku_id text,
+      title text,
+      raw jsonb NOT NULL DEFAULT '{}'::jsonb,
+      captured_at timestamptz NOT NULL DEFAULT now()
+    );
+
+    CREATE TABLE IF NOT EXISTS order_snapshot (
+      id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+      platform text NOT NULL,
+      store_id text NOT NULL,
+      order_id text NOT NULL,
+      status text,
+      logistics_status text,
+      aftersale_status text,
+      raw jsonb NOT NULL DEFAULT '{}'::jsonb,
+      captured_at timestamptz NOT NULL DEFAULT now()
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_conversation_platform_store ON conversation(platform, store_id);
+    CREATE INDEX IF NOT EXISTS idx_message_conversation ON message(conversation_id, created_at);
+    CREATE INDEX IF NOT EXISTS idx_decision_record_request_id ON decision_record(request_id);
+    CREATE INDEX IF NOT EXISTS idx_knowledge_entry_embedding ON knowledge_entry USING ivfflat (embedding vector_cosine_ops) WITH (lists = 64);
+

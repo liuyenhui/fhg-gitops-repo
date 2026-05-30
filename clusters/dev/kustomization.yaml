@@ -4,6 +4,9 @@ resources:
   - ../../apps/base/frpc
   - ../../apps/base/frontend
   - ../../apps/base/backend
+  - kustomizations/infrastructure-controllers.yaml
+  - kustomizations/infrastructure-config.yaml
+  - kustomizations/ecommerce-cs-agent-dev.yaml
 
 configMapGenerator:
   - name: fhg-frontend-values

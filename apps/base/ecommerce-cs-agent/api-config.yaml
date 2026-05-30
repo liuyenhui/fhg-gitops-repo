@@ -1,0 +1,121 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ecommerce-cs-agent-api-source
+data:
+  main.py: |
+    import os
+    import time
+    import uuid
+    from typing import Optional
+
+    from fastapi import Depends, FastAPI, Header, HTTPException, Request, status
+    from fastapi.responses import PlainTextResponse
+    from pydantic import BaseModel, Field
+
+    app = FastAPI(title="Ecommerce Customer Service Agent API", version="0.1.0")
+    started_at = time.time()
+
+
+    class ReplyDecisionRequest(BaseModel):
+      request_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+      platform: Optional[str] = None
+      store_id: Optional[str] = None
+      conversation: dict = Field(default_factory=dict)
+      message: dict = Field(default_factory=dict)
+      product: dict = Field(default_factory=dict)
+      order: dict = Field(default_factory=dict)
+      store_rules: list = Field(default_factory=list)
+      platform_rules: list = Field(default_factory=list)
+      mode: str = "assist_first"
+
+
+    class HumanReplyFeedback(BaseModel):
+      decision_id: str
+      human_reply: str
+      used_candidate: bool = False
+      edit_distance: Optional[float] = None
+      resolution_status: Optional[str] = None
+      follow_up_required: bool = False
+      escalation_type: Optional[str] = None
+
+
+    def require_api_token(
+      authorization: Optional[str] = Header(default=None),
+      x_api_key: Optional[str] = Header(default=None),
+    ) -> None:
+      expected = os.environ.get("AGENT_API_TOKEN", "")
+      if not expected:
+        raise HTTPException(
+          status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+          detail="API token is not configured",
+        )
+      bearer_ok = authorization == f"Bearer {expected}"
+      api_key_ok = x_api_key == expected
+      if not bearer_ok and not api_key_ok:
+        raise HTTPException(
+          status_code=status.HTTP_401_UNAUTHORIZED,
+          detail="Missing or invalid API token",
+          headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+    @app.get("/healthz", response_class=PlainTextResponse)
+    @app.get("/readyz", response_class=PlainTextResponse)
+    def healthz() -> str:
+      return "OK\n"
+
+
+    @app.post("/v1/reply-decisions", dependencies=[Depends(require_api_token)])
+    async def create_reply_decision(payload: ReplyDecisionRequest, request: Request) -> dict:
+      message_text = ""
+      if isinstance(payload.message, dict):
+        message_text = str(payload.message.get("text") or payload.message.get("content") or "")
+      decision_id = f"decision-{uuid.uuid4()}"
+      candidate_text = "已收到您的问题，客服会结合订单和商品信息尽快处理。"
+      if message_text:
+        candidate_text = f"关于“{message_text[:80]}”，客服会结合订单和商品信息尽快处理。"
+      return {
+        "decision_id": decision_id,
+        "request_id": payload.request_id,
+        "action": "candidate",
+        "candidates": [
+          {
+            "id": f"candidate-{uuid.uuid4()}",
+            "text": candidate_text,
+            "source": "bootstrap-api",
+          }
+        ],
+        "auto_reply": None,
+        "confidence": 0.5,
+        "risk_level": "medium",
+        "risk_flags": ["bootstrap_service"],
+        "missing_context": [],
+        "handoff_reason": None,
+        "trace": {
+          "matched_knowledge_ids": [],
+          "rule_hits": [],
+          "model_version": "bootstrap-fastapi-v1",
+          "client_host": request.client.host if request.client else None,
+        },
+      }
+
+
+    @app.post("/v1/feedback/human-replies", dependencies=[Depends(require_api_token)])
+    async def submit_human_reply_feedback(payload: HumanReplyFeedback) -> dict:
+      return {
+        "accepted": True,
+        "feedback_id": f"feedback-{uuid.uuid4()}",
+        "decision_id": payload.decision_id,
+      }
+
+
+    @app.get("/v1/runtime", dependencies=[Depends(require_api_token)])
+    def runtime() -> dict:
+      return {
+        "service": "ecommerce-cs-agent-api",
+        "uptime_seconds": int(time.time() - started_at),
+        "database_host": os.environ.get("POSTGRES_HOST"),
+        "object_store_endpoint": os.environ.get("S3_ENDPOINT"),
+      }
+

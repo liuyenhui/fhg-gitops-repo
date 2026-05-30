@@ -1,0 +1,48 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: postgres-ingress-from-app-and-backup
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: ecommerce-postgres
+      app.kubernetes.io/component: database
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: ecommerce-cs-agent-api
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: ecommerce-postgres
+              app.kubernetes.io/component: backup
+      ports:
+        - protocol: TCP
+          port: 5432
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: minio-ingress-from-app-and-backup
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: ecommerce-minio
+      app.kubernetes.io/component: object-storage
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: ecommerce-cs-agent-api
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: ecommerce-postgres
+              app.kubernetes.io/component: backup
+      ports:
+        - protocol: TCP
+          port: 9000
+

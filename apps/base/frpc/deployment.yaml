@@ -17,6 +17,8 @@ spec:
         app.kubernetes.io/name: bpg-frpc
         app.kubernetes.io/part-of: remote-access
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: agent-0
       containers:
         - name: frpc
           image: snowdreamtech/frpc:0.64.0

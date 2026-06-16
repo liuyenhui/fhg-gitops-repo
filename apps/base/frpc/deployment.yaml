@@ -50,13 +50,6 @@ spec:
               localIP = "192.168.1.200"
               localPort = 80
 
-              [[proxies]]
-              name = "ssh-bpg-master"
-              type = "tcpmux"
-              multiplexer = "httpconnect"
-              customDomains = ["bpg-master.ssh.fcihome.com"]
-              localIP = "192.168.1.200"
-              localPort = 22
               EOF
               exec /usr/bin/frpc -c /tmp/frpc.toml
           env:

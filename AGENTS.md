@@ -33,6 +33,7 @@ KUBECONFIG=$HOME/.kube/bpg-debian12-master-public.yaml kubectl -n flux-system an
 - FRPS 公网入口：ai-agent `47.113.204.168`
 - `bpg-frpc` 固定调度到 `agent-0`，避免 master 在国内网络下重新拉取 `snowdreamtech/frpc` 镜像卡住。
 - ecommerce dev 域名的公网 HTTPS 由 ai-agent Traefik 终止 TLS，再转发到 frps HTTP vhost；`bpg-frpc` 只注册 `cs-agent-dev-http`，不要再启用 frpc `type=https`。
+- ai-agent frps 未启用 tcpmux，`bpg-frpc` 不再注册 `ssh-bpg-master`；如需 SSH 公网入口，应先在 ai-agent frps 显式启用对应功能。
 - FRP 已预留域名：
   - `api.ecommerce-cs-agent-dev.fcihome.com`
   - `admin.ecommerce-cs-agent-dev.fcihome.com`

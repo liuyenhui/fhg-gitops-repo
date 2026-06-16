@@ -51,13 +51,6 @@ spec:
               localPort = 80
 
               [[proxies]]
-              name = "cs-agent-dev-https"
-              type = "https"
-              customDomains = ["cs-agent-dev.fcihome.com", "api.ecommerce-cs-agent-dev.fcihome.com", "admin.ecommerce-cs-agent-dev.fcihome.com"]
-              localIP = "192.168.1.200"
-              localPort = 443
-
-              [[proxies]]
               name = "ssh-bpg-master"
               type = "tcpmux"
               multiplexer = "httpconnect"

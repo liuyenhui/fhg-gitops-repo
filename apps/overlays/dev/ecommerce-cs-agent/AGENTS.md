@@ -88,6 +88,55 @@ KUBECONFIG=$HOME/.kube/bpg-debian12-master-public.yaml kubectl -n ecommerce-cs-a
 
 旧 key `agent-api-token`、`llm-provider-api-key` 可能仍存在，仅为兼容历史临时服务；新业务优先使用大写 key。
 
+当前 `LLM_API_KEY`、`LLM_BASE_URL`、`LLM_MODEL`、`ADMIN_INITIAL_EMAIL`、`ADMIN_INITIAL_PASSWORD_HASH`
+允许为空，等待业务方通过安全渠道写入真实值。更新时保留已有 key，不要用空值覆盖非空值。
+
+## 应用部署约定
+
+后续业务应用建议由应用 chart 或应用 Kustomize overlay 自己创建 Deployment、Service、Ingress；本基础环境 overlay 只提供 namespace、PostgreSQL、MinIO、Secret、备份和网络约定。
+
+镜像命名：
+
+- Agent API：`ghcr.io/liuyenhui/ecommerce-cs-agent-api:<tag>`
+- Admin Web：`ghcr.io/liuyenhui/ecommerce-cs-agent-admin:<tag>`
+
+Pod pull secret：
+
+- `imagePullSecrets`
+  - `name: ghcr-auth`
+
+建议 chart values：
+
+```yaml
+image:
+  repository: ghcr.io/liuyenhui/ecommerce-cs-agent-api
+  tag: <git-sha-or-semver>
+imagePullSecrets:
+  - name: ghcr-auth
+envFromSecret: ecommerce-cs-agent-runtime
+proxy:
+  enabled: true
+  httpProxy: http://192.168.1.198:1087
+  httpsProxy: http://192.168.1.198:1087
+  noProxy: localhost,127.0.0.1,.svc,.cluster.local,postgres.ecommerce-cs-agent-dev.svc.cluster.local,minio.ecommerce-cs-agent-dev.svc.cluster.local
+ingress:
+  enabled: true
+  className: traefik
+  clusterIssuer: letsencrypt-http01
+```
+
+Admin Web 同样使用 `ghcr.io/liuyenhui/ecommerce-cs-agent-admin:<tag>`，并复用 `ghcr-auth`。
+
+## 业务 Pod 出网代理
+
+Agent API 后续会调用 LLM Provider。当前 Flux controller 已配置代理；业务 Pod 是否必须走代理取决于 LLM Provider 直连稳定性。为降低首次部署风险，建议 API Deployment 默认注入：
+
+- `HTTP_PROXY=http://192.168.1.198:1087`
+- `HTTPS_PROXY=http://192.168.1.198:1087`
+- `NO_PROXY=localhost,127.0.0.1,.svc,.cluster.local,postgres.ecommerce-cs-agent-dev.svc.cluster.local,minio.ecommerce-cs-agent-dev.svc.cluster.local`
+
+如果后续验证直连 LLM 稳定，可以在应用 chart values 中关闭代理。
+
 ## 备份 CronJob
 
 - CronJob：`postgres-backup`
@@ -114,7 +163,7 @@ uploaded minio/ecommerce-cs-agent-dev/postgres/cs-agent-cs_agent-*.dump
 
 ## Ingress / 域名
 
-当前不创建业务 Ingress。等业务 service 存在后再创建：
+当前不创建业务 Ingress。优先由应用 chart 创建 Ingress；如果应用 chart 不管理 Ingress，再由本 GitOps 仓库增加单独 Ingress 清单。等业务 service 存在后再创建：
 
 - API：`https://api.ecommerce-cs-agent-dev.fcihome.com`
 - Admin：`https://admin.ecommerce-cs-agent-dev.fcihome.com`
@@ -123,6 +172,11 @@ uploaded minio/ecommerce-cs-agent-dev/postgres/cs-agent-cs_agent-*.dump
 
 - `ingressClassName: traefik`
 - annotation：`cert-manager.io/cluster-issuer: letsencrypt-http01`
+
+建议 service 名称：
+
+- Agent API service：`ecommerce-cs-agent-api`
+- Admin Web service：`ecommerce-cs-agent-admin`
 
 ## 评测工具
 

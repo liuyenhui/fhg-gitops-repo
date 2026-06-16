@@ -4,7 +4,6 @@ namespace: ecommerce-cs-agent-dev
 resources:
   - namespace.yaml
   - ../../../base/ecommerce-cs-agent
-  - ingress.yaml
 labels:
   - includeSelectors: true
     pairs:

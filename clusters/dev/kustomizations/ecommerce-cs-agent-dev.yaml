@@ -12,13 +12,7 @@ spec:
   prune: true
   wait: true
   timeout: 15m
-  dependsOn:
-    - name: infrastructure-config
   healthChecks:
-    - apiVersion: apps/v1
-      kind: Deployment
-      name: ecommerce-cs-agent-api
-      namespace: ecommerce-cs-agent-dev
     - apiVersion: apps/v1
       kind: StatefulSet
       name: postgres

@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: postgres-ingress-from-app-and-backup
+  name: postgres-ingress-from-agent-and-backup
 spec:
   podSelector:
     matchLabels:
@@ -25,7 +25,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: minio-ingress-from-app-and-backup
+  name: minio-ingress-from-agent-and-backup
 spec:
   podSelector:
     matchLabels:
@@ -45,4 +45,3 @@ spec:
       ports:
         - protocol: TCP
           port: 9000
-

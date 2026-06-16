@@ -22,11 +22,12 @@ spec:
           restartPolicy: OnFailure
           initContainers:
             - name: copy-minio-client
-              image: minio/mc:latest
+              image: minio/minio:latest
+              imagePullPolicy: IfNotPresent
               command:
                 - /bin/sh
                 - -ec
-                - cp "$(command -v mc)" /tools/mc
+                - cp /usr/bin/mc /tools/mc
               volumeMounts:
                 - name: tools
                   mountPath: /tools
@@ -84,4 +85,3 @@ spec:
           volumes:
             - name: tools
               emptyDir: {}
-

@@ -4,14 +4,74 @@ metadata:
   name: ecommerce-cs-agent-ops-runbook
 data:
   backup-and-restore.md: |
-    # Ecommerce CS Agent Dev Operations
+    # Ecommerce CS Agent Dev Environment
 
-    Secrets are created out of band and must not be committed to Git:
+    This Flux application prepares only the shared dev runtime environment.
+    It intentionally does not deploy the Agent API, Admin Web, eval worker, or
+    any temporary business image.
+
+    ## Cluster
+
+    - Environment: ecommerce-cs-agent-dev
+    - Namespace: ecommerce-cs-agent-dev
+    - Kubernetes: k3s
+    - Ingress controller: traefik
+    - TLS issuer: letsencrypt-http01
+    - Deployment entrypoint: Flux Kustomization flux-system/ecommerce-cs-agent-dev
+
+    ## Runtime endpoints
+
+    - PostgreSQL service: postgres.ecommerce-cs-agent-dev.svc.cluster.local:5432
+    - PostgreSQL local service alias in namespace: postgres:5432
+    - MinIO S3 endpoint: http://minio.ecommerce-cs-agent-dev.svc.cluster.local:9000
+    - MinIO local service alias in namespace: http://minio:9000
+    - Object bucket: ecommerce-cs-agent-dev
+    - Object region: us-east-1
+    - Path style access: true
+
+    ## Secrets
+
+    Secrets are created out of band and must not be committed to Git. Use the
+    public kubeconfig or a CI/CD secret bootstrap step to create and rotate them.
 
     - ecommerce-cs-agent-runtime
+      - DATABASE_URL
+      - OBJECT_STORAGE_ENDPOINT
+      - OBJECT_STORAGE_BUCKET
+      - OBJECT_STORAGE_REGION
+      - OBJECT_STORAGE_ACCESS_KEY_ID
+      - OBJECT_STORAGE_SECRET_ACCESS_KEY
+      - LLM_API_KEY
+      - LLM_BASE_URL
+      - LLM_MODEL
+      - SESSION_SECRET
+      - JWT_SECRET
+      - AGENT_API_TOKEN
+      - ADMIN_INITIAL_EMAIL
+      - ADMIN_INITIAL_PASSWORD_HASH
     - ecommerce-postgres-auth
+      - database
+      - username
+      - password
     - ecommerce-minio-auth
+      - root-user
+      - root-password
+      - bucket
+      - access-key
+      - secret-key
     - ghcr-auth
+      - .dockerconfigjson
+
+    ## Future application ingress
+
+    Create these ingress hosts only when the corresponding application services
+    exist:
+
+    - api.ecommerce-cs-agent-dev.fcihome.com -> Agent API service
+    - admin.ecommerce-cs-agent-dev.fcihome.com -> Admin Web service
+
+    Both hosts should use ingressClassName traefik and ClusterIssuer
+    letsencrypt-http01.
 
     Daily PostgreSQL backups run at 18:17 UTC and upload custom-format dumps to:
 
@@ -25,5 +85,5 @@ data:
 
        pg_restore --clean --if-exists -h postgres -U "$POSTGRES_USER" -d "$POSTGRES_DB" /tmp/backup.dump
 
-    MinIO, PostgreSQL, and Grafana are ClusterIP-only. Access them through kubectl port-forward over VPN or the ssh cmdz tunnel.
-
+    MinIO, PostgreSQL, and Grafana are ClusterIP-only. Access them through kubectl
+    port-forward over the public kubeconfig, VPN, or the ssh cmdz tunnel.

@@ -1,0 +1,9 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: ecommerce-cs-agent-app
+spec:
+  interval: 1m
+  url: https://github.com/liuyenhui/ecommerce-cs-agent.git
+  ref:
+    branch: main

@@ -6,9 +6,9 @@ data:
   backup-and-restore.md: |
     # Ecommerce CS Agent Dev Environment
 
-    This Flux application prepares only the shared dev runtime environment.
-    It intentionally does not deploy the Agent API, Admin Web, eval worker, or
-    any temporary business image.
+    This Flux application prepares the shared dev runtime environment. The dev
+    overlay also declares the business HelmRelease that deploys the Agent API
+    and Admin Web from the ecommerce-cs-agent application repository chart.
 
     ## Cluster
 
@@ -62,16 +62,17 @@ data:
     - ghcr-auth
       - .dockerconfigjson
 
-    ## Future application ingress
+    ## Application ingress
 
-    Create these ingress hosts only when the corresponding application services
-    exist:
+    The dev overlay deploys the business services through HelmRelease. These
+    hosts are owned by the application chart values:
 
     - api.ecommerce-cs-agent-dev.fcihome.com -> Agent API service
     - admin.ecommerce-cs-agent-dev.fcihome.com -> Admin Web service
 
-    Both hosts should use ingressClassName traefik and ClusterIssuer
-    letsencrypt-http01.
+    Both hosts use ingressClassName traefik and ClusterIssuer letsencrypt-http01.
+    Routine releases must update GitOps values and let Flux reconcile; do not
+    use kubectl set image or manual Helm upgrade as the final deployment path.
 
     Daily PostgreSQL backups run at 18:17 UTC and upload custom-format dumps to:
 

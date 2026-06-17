@@ -1,6 +1,6 @@
 # AGENTS.md
 
-本目录定义 `ecommerce-cs-agent-dev` 的 Flux overlay。当前目标是基础运行环境，不部署业务 Agent API、Admin Web 或评测 worker 镜像。
+本目录定义 `ecommerce-cs-agent-dev` 的 Flux overlay。当前目标是基础运行环境加业务 Agent API/Admin Web 的 dev 发布目标状态。
 
 ## 环境入口
 
@@ -12,7 +12,7 @@
 
 ## 当前应存在的资源
 
-正常状态下本 namespace 只应有基础设施资源：
+正常状态下本 namespace 应有基础设施资源和业务 Helm release：
 
 - `StatefulSet/postgres`
 - `StatefulSet/minio`
@@ -21,15 +21,16 @@
 - `CronJob/postgres-backup`
 - `ConfigMap/ecommerce-postgres-initdb`
 - `ConfigMap/ecommerce-cs-agent-ops-runbook`
+- `GitRepository/ecommerce-cs-agent-app`
+- `HelmRelease/ecommerce-cs-agent`
+- `Deployment/ecommerce-cs-agent-api`
+- `Deployment/ecommerce-cs-agent-admin`
+- `Service/ecommerce-cs-agent-api`
+- `Service/ecommerce-cs-agent-admin`
+- API/Admin Ingress
 - 相关 PVC 和 NetworkPolicy
 
-当前不应由本 overlay 部署：
-
-- `Deployment/ecommerce-cs-agent-api`
-- `Service/ecommerce-cs-agent-api`
-- API/Admin Ingress
-
-如果这些业务资源重新出现，先确认是否有新 chart/overlay 接管；不要恢复旧的临时 FastAPI ConfigMap 业务镜像。
+业务 API/Admin 由 `app-source.yaml` 和 `app-release.yaml` 接管，chart 来源是应用仓库 `liuyenhui/ecommerce-cs-agent` 的 `deploy/helm/ecommerce-cs-agent`。不要再用手工 `helm upgrade`、`kubectl set image` 或旧的临时 FastAPI ConfigMap 作为常规发布路径。
 
 ## PostgreSQL
 
@@ -93,25 +94,29 @@ KUBECONFIG=$HOME/.kube/bpg-debian12-master-public.yaml kubectl -n ecommerce-cs-a
 
 ## 应用部署约定
 
-后续业务应用建议由应用 chart 或应用 Kustomize overlay 自己创建 Deployment、Service、Ingress；本基础环境 overlay 只提供 namespace、PostgreSQL、MinIO、Secret、备份和网络约定。
+业务应用由应用仓库 chart 创建 Deployment、Service、Ingress 和 migration hook；本 overlay 保存 dev values 和 Flux 目标状态。
 
 镜像命名：
 
-- Agent API：`ghcr.io/liuyenhui/ecommerce-cs-agent-api:<tag>`
-- Admin Web：`ghcr.io/liuyenhui/ecommerce-cs-agent-admin:<tag>`
+- Agent API：`registry.cn-beijing.aliyuncs.com/threepeople/ecommerce-cs-agent-api:<tag>`
+- Admin Web：`registry.cn-beijing.aliyuncs.com/threepeople/ecommerce-cs-agent-admin:<tag>`
+- GHCR 备份：`ghcr.io/liuyenhui/ecommerce-cs-agent-api:<tag>`、`ghcr.io/liuyenhui/ecommerce-cs-agent-admin:<tag>`
 
 Pod pull secret：
 
 - `imagePullSecrets`
+  - `name: aliyun-registry-auth`
   - `name: ghcr-auth`
 
 建议 chart values：
 
 ```yaml
-image:
-  repository: ghcr.io/liuyenhui/ecommerce-cs-agent-api
-  tag: <git-sha-or-semver>
+api:
+  image:
+    repository: registry.cn-beijing.aliyuncs.com/threepeople/ecommerce-cs-agent-api
+    tag: <git-sha-or-semver>
 imagePullSecrets:
+  - name: aliyun-registry-auth
   - name: ghcr-auth
 envFromSecret: ecommerce-cs-agent-runtime
 proxy:
@@ -125,7 +130,7 @@ ingress:
   clusterIssuer: letsencrypt-http01
 ```
 
-Admin Web 同样使用 `ghcr.io/liuyenhui/ecommerce-cs-agent-admin:<tag>`，并复用 `ghcr-auth`。
+Admin Web 同样使用阿里云 Registry 主镜像，并保留 GHCR pull secret 作为备用。
 
 ## 业务 Pod 出网代理
 
@@ -186,7 +191,7 @@ uploaded minio/ecommerce-cs-agent-dev/postgres/cs-agent-cs_agent-*.dump
 
 ## Ingress / 域名
 
-当前不创建业务 Ingress。优先由应用 chart 创建 Ingress；如果应用 chart 不管理 Ingress，再由本 GitOps 仓库增加单独 Ingress 清单。等业务 service 存在后再创建：
+业务 Ingress 由应用 chart 创建：
 
 - API：`https://api.ecommerce-cs-agent-dev.fcihome.com`
 - Admin：`https://admin.ecommerce-cs-agent-dev.fcihome.com`
@@ -205,7 +210,7 @@ uploaded minio/ecommerce-cs-agent-dev/postgres/cs-agent-cs_agent-*.dump
 
 ## 评测工具
 
-当前 `TARGET_BASE_URL` 暂不可用，因为没有部署 Agent API。后续部署 API 后使用：
+当前 `TARGET_BASE_URL`：
 
 - `TARGET_BASE_URL=https://api.ecommerce-cs-agent-dev.fcihome.com`
 - 鉴权建议：`Authorization: Bearer <token>`

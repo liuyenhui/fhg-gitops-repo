@@ -4,6 +4,16 @@ namespace: ecommerce-cs-agent-dev
 resources:
   - namespace.yaml
   - ../../../base/ecommerce-cs-agent
+  - app-source.yaml
+  - app-release.yaml
+
+configMapGenerator:
+  - name: ecommerce-cs-agent-values
+    files:
+      - values.yaml=values.yaml
+    options:
+      disableNameSuffixHash: true
+
 labels:
   - includeSelectors: true
     pairs:

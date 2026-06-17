@@ -1,0 +1,27 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: ecommerce-cs-agent
+spec:
+  releaseName: ecommerce-cs-agent
+  interval: 5m
+  chart:
+    spec:
+      chart: ./deploy/helm/ecommerce-cs-agent
+      sourceRef:
+        kind: GitRepository
+        name: ecommerce-cs-agent-app
+      interval: 1m
+  install:
+    timeout: 10m
+    remediation:
+      retries: 3
+  upgrade:
+    timeout: 10m
+    remediation:
+      retries: 3
+      remediateLastFailure: true
+  valuesFrom:
+    - kind: ConfigMap
+      name: ecommerce-cs-agent-values
+      valuesKey: values.yaml

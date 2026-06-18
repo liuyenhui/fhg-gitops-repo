@@ -38,9 +38,9 @@ KUBECONFIG=$HOME/.kube/bpg-debian12-master-public.yaml kubectl -n flux-system an
 - SSH 公网入口复用 cmdz `/root/wangdian/docker-compose.yml` 管理的 `frps-server`，端口 `7002` 用于 `tcpmux/httpconnect`。不要把 SSH tcpmux 加到 ai-agent frps。
 - `frpc-auth` Secret 中 `token` 必须匹配 ai-agent FRPS，`cmdz-token` 必须匹配 cmdz `/root/wangdian/frps/frps.toml` 中的 FRPS token。核对时只比较 hash，不打印 token 明文。
 - SSH 代理域名：
-  - `m-master.ssh.fcihome.com` -> `192.168.1.202:22`
-  - `m-agent1.ssh.fcihome.com` -> `192.168.1.203:22`
-  - `mac-intel.ssh.fcihome.com` -> `192.168.1.76:22`
+  - `m-master.ssh.fcihome.com` -> 既有 cmdz proxy，当前本机 `remote-m-master` 使用 `ssh.fcihome.com:7002`
+  - `m-agent1.ssh.fcihome.com` -> 既有 cmdz proxy，当前本机 `remote-m-agent1` 使用 `ssh.fcihome.com:7002`
+  - `mac-intel.ssh.fcihome.com` -> 本仓库 `bpg-frpc` 的 `frpc-ssh` 容器，转发到 `192.168.1.76:22`
 - FRP 已预留域名：
   - `api.ecommerce-cs-agent-dev.fcihome.com`
   - `admin.ecommerce-cs-agent-dev.fcihome.com`

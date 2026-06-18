@@ -94,22 +94,6 @@ spec:
               log.level = "info"
 
               [[proxies]]
-              name = "m-master-ssh"
-              type = "tcpmux"
-              multiplexer = "httpconnect"
-              customDomains = ["m-master.ssh.fcihome.com"]
-              localIP = "192.168.1.202"
-              localPort = 22
-
-              [[proxies]]
-              name = "m-agent1-ssh"
-              type = "tcpmux"
-              multiplexer = "httpconnect"
-              customDomains = ["m-agent1.ssh.fcihome.com"]
-              localIP = "192.168.1.203"
-              localPort = 22
-
-              [[proxies]]
               name = "mac-intel-ssh"
               type = "tcpmux"
               multiplexer = "httpconnect"

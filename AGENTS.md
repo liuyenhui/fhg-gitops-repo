@@ -30,10 +30,17 @@ KUBECONFIG=$HOME/.kube/bpg-debian12-master-public.yaml kubectl -n flux-system an
 - TLS：cert-manager `letsencrypt-http01`
 - StorageClass：`local-path`
 - FRP Deployment：`frp-system/bpg-frpc`
-- FRPS 公网入口：ai-agent `47.113.204.168`
+- ecommerce dev HTTP/HTTPS FRPS 公网入口：ai-agent `47.113.204.168`
+- SSH tcpmux FRPS 公网入口：cmdz `ssh.fcihome.com` / `39.97.193.74`
 - `bpg-frpc` 固定调度到 `agent-0`，避免 master 在国内网络下重新拉取 `snowdreamtech/frpc` 镜像卡住。
 - ecommerce dev 域名的公网 HTTPS 由 ai-agent Traefik 终止 TLS，再转发到 frps HTTP vhost；`bpg-frpc` 只注册 `cs-agent-dev-http`，不要再启用 frpc `type=https`。
-- ai-agent frps 未启用 tcpmux，`bpg-frpc` 不再注册 `ssh-bpg-master`；如需 SSH 公网入口，应先在 ai-agent frps 显式启用对应功能。
+- `bpg-frpc` Deployment 内有两个 frpc 容器：`frpc` 连接 ai-agent，`frpc-ssh` 连接 cmdz。不要把整个 Deployment 的 `FRP_SERVER_ADDR` 改到 `ssh.fcihome.com`，否则 ecommerce HTTP 域名会从 ai-agent 断开。
+- SSH 公网入口复用 cmdz `/root/wangdian/docker-compose.yml` 管理的 `frps-server`，端口 `7002` 用于 `tcpmux/httpconnect`。不要把 SSH tcpmux 加到 ai-agent frps。
+- `frpc-auth` Secret 中 `token` 必须匹配 ai-agent FRPS，`cmdz-token` 必须匹配 cmdz `/root/wangdian/frps/frps.toml` 中的 FRPS token。核对时只比较 hash，不打印 token 明文。
+- SSH 代理域名：
+  - `m-master.ssh.fcihome.com` -> `192.168.1.202:22`
+  - `m-agent1.ssh.fcihome.com` -> `192.168.1.203:22`
+  - `mac-intel.ssh.fcihome.com` -> `192.168.1.76:22`
 - FRP 已预留域名：
   - `api.ecommerce-cs-agent-dev.fcihome.com`
   - `admin.ecommerce-cs-agent-dev.fcihome.com`

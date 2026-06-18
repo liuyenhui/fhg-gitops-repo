@@ -44,8 +44,8 @@ spec:
         - name: aliyun-registry-auth
       initContainers:
         - name: db-prepare
-          image: registry.cn-beijing.aliyuncs.com/threepeople/chatwoot:latest-amd64-20260619
-          imagePullPolicy: IfNotPresent
+          image: localhost/chatwoot:latest-amd64-20260619
+          imagePullPolicy: Never
           command: ["bundle", "exec", "rails", "db:chatwoot_prepare"]
           envFrom:
             - configMapRef:
@@ -78,8 +78,8 @@ spec:
               value: redis://:$(REDIS_PASSWORD)@chatwoot-redis:6379
       containers:
         - name: rails
-          image: registry.cn-beijing.aliyuncs.com/threepeople/chatwoot:latest-amd64-20260619
-          imagePullPolicy: IfNotPresent
+          image: localhost/chatwoot:latest-amd64-20260619
+          imagePullPolicy: Never
           command: ["bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0"]
           ports:
             - name: http
@@ -167,8 +167,8 @@ spec:
         - name: aliyun-registry-auth
       containers:
         - name: sidekiq
-          image: registry.cn-beijing.aliyuncs.com/threepeople/chatwoot:latest-amd64-20260619
-          imagePullPolicy: IfNotPresent
+          image: localhost/chatwoot:latest-amd64-20260619
+          imagePullPolicy: Never
           command: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
           envFrom:
             - configMapRef:

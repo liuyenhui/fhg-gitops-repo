@@ -40,6 +40,8 @@ spec:
     spec:
       nodeSelector:
         kubernetes.io/hostname: master
+      imagePullSecrets:
+        - name: aliyun-registry-auth
       initContainers:
         - name: db-prepare
           image: registry.cn-beijing.aliyuncs.com/threepeople/chatwoot:latest-amd64-20260619
@@ -161,6 +163,8 @@ spec:
     spec:
       nodeSelector:
         kubernetes.io/hostname: master
+      imagePullSecrets:
+        - name: aliyun-registry-auth
       containers:
         - name: sidekiq
           image: registry.cn-beijing.aliyuncs.com/threepeople/chatwoot:latest-amd64-20260619

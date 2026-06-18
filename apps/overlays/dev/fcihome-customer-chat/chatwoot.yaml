@@ -42,7 +42,7 @@ spec:
         kubernetes.io/hostname: master
       initContainers:
         - name: db-prepare
-          image: docker.m.daocloud.io/chatwoot/chatwoot:latest
+          image: registry.cn-beijing.aliyuncs.com/threepeople/chatwoot:latest-amd64-20260619
           imagePullPolicy: IfNotPresent
           command: ["bundle", "exec", "rails", "db:chatwoot_prepare"]
           envFrom:
@@ -76,7 +76,7 @@ spec:
               value: redis://:$(REDIS_PASSWORD)@chatwoot-redis:6379
       containers:
         - name: rails
-          image: docker.m.daocloud.io/chatwoot/chatwoot:latest
+          image: registry.cn-beijing.aliyuncs.com/threepeople/chatwoot:latest-amd64-20260619
           imagePullPolicy: IfNotPresent
           command: ["bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0"]
           ports:
@@ -163,7 +163,7 @@ spec:
         kubernetes.io/hostname: master
       containers:
         - name: sidekiq
-          image: docker.m.daocloud.io/chatwoot/chatwoot:latest
+          image: registry.cn-beijing.aliyuncs.com/threepeople/chatwoot:latest-amd64-20260619
           imagePullPolicy: IfNotPresent
           command: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
           envFrom:

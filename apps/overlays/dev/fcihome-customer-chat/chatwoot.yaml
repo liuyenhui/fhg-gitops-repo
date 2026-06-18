@@ -38,6 +38,8 @@ spec:
       labels:
         app.kubernetes.io/name: chatwoot
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: master
       initContainers:
         - name: db-prepare
           image: docker.m.daocloud.io/chatwoot/chatwoot:latest
@@ -157,6 +159,8 @@ spec:
       labels:
         app.kubernetes.io/name: chatwoot-sidekiq
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: master
       containers:
         - name: sidekiq
           image: docker.m.daocloud.io/chatwoot/chatwoot:latest

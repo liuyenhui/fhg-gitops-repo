@@ -37,6 +37,7 @@ KUBECONFIG=$HOME/.kube/bpg-debian12-master-public.yaml kubectl -n flux-system an
 - FRP 已预留域名：
   - `api.ecommerce-cs-agent-dev.fcihome.com`
   - `admin.ecommerce-cs-agent-dev.fcihome.com`
+  - `system-admin.ecommerce-cs-agent-dev.fcihome.com`
 
 ## 中国网络 / 节点镜像拉取代理
 

@@ -46,7 +46,7 @@ spec:
               [[proxies]]
               name = "cs-agent-dev-http"
               type = "http"
-              customDomains = ["cs-agent-dev.fcihome.com", "api.ecommerce-cs-agent-dev.fcihome.com", "admin.ecommerce-cs-agent-dev.fcihome.com", "chat.fcihome.com", "feishu.fcihome.com"]
+              customDomains = ["cs-agent-dev.fcihome.com", "api.ecommerce-cs-agent-dev.fcihome.com", "admin.ecommerce-cs-agent-dev.fcihome.com", "system-admin.ecommerce-cs-agent-dev.fcihome.com", "chat.fcihome.com", "feishu.fcihome.com"]
               localIP = "192.168.1.200"
               localPort = 80
 

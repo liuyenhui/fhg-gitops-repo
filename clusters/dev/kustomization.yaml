@@ -7,6 +7,7 @@ resources:
   - kustomizations/infrastructure-controllers.yaml
   - kustomizations/infrastructure-config.yaml
   - kustomizations/ecommerce-cs-agent-dev.yaml
+  - kustomizations/fcihome-customer-chat.yaml
 
 configMapGenerator:
   - name: fhg-frontend-values

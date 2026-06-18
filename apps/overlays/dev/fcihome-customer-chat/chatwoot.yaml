@@ -1,0 +1,212 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: chatwoot
+spec:
+  selector:
+    app.kubernetes.io/name: chatwoot
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: chatwoot-storage
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chatwoot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: chatwoot
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: chatwoot
+    spec:
+      initContainers:
+        - name: db-prepare
+          image: chatwoot/chatwoot:latest
+          imagePullPolicy: IfNotPresent
+          command: ["bundle", "exec", "rails", "db:chatwoot_prepare"]
+          envFrom:
+            - configMapRef:
+                name: fcihome-customer-chat-config
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: RAILS_ENV
+              value: production
+            - name: INSTALLATION_ENV
+              value: kubernetes
+            - name: FRONTEND_URL
+              value: https://chat.fcihome.com
+            - name: SECRET_KEY_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: fcihome-customer-chat-runtime
+                  key: CHATWOOT_SECRET_KEY_BASE
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fcihome-customer-chat-runtime
+                  key: CHATWOOT_POSTGRES_PASSWORD
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fcihome-customer-chat-runtime
+                  key: CHATWOOT_REDIS_PASSWORD
+            - name: REDIS_URL
+              value: redis://:$(REDIS_PASSWORD)@chatwoot-redis:6379
+      containers:
+        - name: rails
+          image: chatwoot/chatwoot:latest
+          imagePullPolicy: IfNotPresent
+          command: ["bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0"]
+          ports:
+            - name: http
+              containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: fcihome-customer-chat-config
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: RAILS_ENV
+              value: production
+            - name: INSTALLATION_ENV
+              value: kubernetes
+            - name: FRONTEND_URL
+              value: https://chat.fcihome.com
+            - name: FORCE_SSL
+              value: "false"
+            - name: ENABLE_ACCOUNT_SIGNUP
+              value: "true"
+            - name: ACTIVE_STORAGE_SERVICE
+              value: local
+            - name: RAILS_LOG_TO_STDOUT
+              value: "true"
+            - name: LOG_LEVEL
+              value: info
+            - name: SECRET_KEY_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: fcihome-customer-chat-runtime
+                  key: CHATWOOT_SECRET_KEY_BASE
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fcihome-customer-chat-runtime
+                  key: CHATWOOT_POSTGRES_PASSWORD
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fcihome-customer-chat-runtime
+                  key: CHATWOOT_REDIS_PASSWORD
+            - name: REDIS_URL
+              value: redis://:$(REDIS_PASSWORD)@chatwoot-redis:6379
+          volumeMounts:
+            - name: chatwoot-storage
+              mountPath: /app/storage
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+      volumes:
+        - name: chatwoot-storage
+          persistentVolumeClaim:
+            claimName: chatwoot-storage
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chatwoot-sidekiq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: chatwoot-sidekiq
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: chatwoot-sidekiq
+    spec:
+      containers:
+        - name: sidekiq
+          image: chatwoot/chatwoot:latest
+          imagePullPolicy: IfNotPresent
+          command: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
+          envFrom:
+            - configMapRef:
+                name: fcihome-customer-chat-config
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: RAILS_ENV
+              value: production
+            - name: INSTALLATION_ENV
+              value: kubernetes
+            - name: FRONTEND_URL
+              value: https://chat.fcihome.com
+            - name: SECRET_KEY_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: fcihome-customer-chat-runtime
+                  key: CHATWOOT_SECRET_KEY_BASE
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fcihome-customer-chat-runtime
+                  key: CHATWOOT_POSTGRES_PASSWORD
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fcihome-customer-chat-runtime
+                  key: CHATWOOT_REDIS_PASSWORD
+            - name: REDIS_URL
+              value: redis://:$(REDIS_PASSWORD)@chatwoot-redis:6379
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 768Mi
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: chatwoot
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: chat.fcihome.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: chatwoot
+                port:
+                  name: http

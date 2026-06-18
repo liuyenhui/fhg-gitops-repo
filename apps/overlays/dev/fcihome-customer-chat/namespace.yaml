@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fcihome-customer-chat
+  labels:
+    app.kubernetes.io/part-of: fcihome-customer-chat
+    environment: dev

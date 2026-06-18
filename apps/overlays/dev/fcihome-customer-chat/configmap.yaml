@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fcihome-customer-chat-config
+data:
+  CHATWOOT_DOMAIN: chat.fcihome.com
+  BRIDGE_DOMAIN: feishu.fcihome.com
+  CHATWOOT_BASE_URL: https://chat.fcihome.com
+  BRIDGE_PUBLIC_BASE_URL: https://feishu.fcihome.com
+  CHATWOOT_ACCOUNT_ID: "1"
+  POSTGRES_DATABASE: chatwoot
+  POSTGRES_USERNAME: postgres
+  POSTGRES_HOST: chatwoot-postgres
+  REDIS_HOST: chatwoot-redis
+  FEISHU_ALLOW_FIRST_BIND: "1"

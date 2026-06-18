@@ -32,6 +32,8 @@
 
 业务 API/Admin 由 `app-source.yaml` 和 `app-release.yaml` 接管，chart 来源是应用仓库 `liuyenhui/ecommerce-cs-agent` 的 `deploy/helm/ecommerce-cs-agent`。不要再用手工 `helm upgrade`、`kubectl set image` 或旧的临时 FastAPI ConfigMap 作为常规发布路径。
 
+`HelmRelease.spec.chart.spec.reconcileStrategy` 必须保持 `Revision`。应用 chart 直接来自 GitRepository，同一 chart version 下也可能有模板、hook、安全上下文或探针变更；按 source revision reconcile 才能保证 GitOps 发布不仅更新 image tag，也会同步 chart 内容。
+
 ## PostgreSQL
 
 - Service：`postgres.ecommerce-cs-agent-dev.svc.cluster.local:5432`

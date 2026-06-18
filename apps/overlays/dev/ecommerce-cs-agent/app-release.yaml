@@ -8,6 +8,7 @@ spec:
   chart:
     spec:
       chart: ./deploy/helm/ecommerce-cs-agent
+      reconcileStrategy: Revision
       sourceRef:
         kind: GitRepository
         name: ecommerce-cs-agent-app

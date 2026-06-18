@@ -13,7 +13,7 @@ api:
   envFromSecret: ecommerce-cs-agent-runtime
   image:
     repository: registry.cn-beijing.aliyuncs.com/threepeople/ecommerce-cs-agent-api
-    tag: sha-30289e646c73
+    tag: sha-9b0b65b06e6f
     pullPolicy: IfNotPresent
   service:
     port: 8000
@@ -26,7 +26,7 @@ admin:
   replicas: 1
   image:
     repository: registry.cn-beijing.aliyuncs.com/threepeople/ecommerce-cs-agent-admin
-    tag: sha-30289e646c73
+    tag: sha-9b0b65b06e6f
     pullPolicy: IfNotPresent
   service:
     port: 8080

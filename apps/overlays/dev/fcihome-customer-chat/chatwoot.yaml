@@ -26,6 +26,8 @@ kind: Deployment
 metadata:
   name: chatwoot
 spec:
+  strategy:
+    type: Recreate
   replicas: 1
   selector:
     matchLabels:
@@ -142,6 +144,8 @@ kind: Deployment
 metadata:
   name: chatwoot-sidekiq
 spec:
+  strategy:
+    type: Recreate
   replicas: 1
   selector:
     matchLabels:

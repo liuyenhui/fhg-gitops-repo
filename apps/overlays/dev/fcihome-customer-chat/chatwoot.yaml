@@ -37,7 +37,7 @@ spec:
     spec:
       initContainers:
         - name: db-prepare
-          image: chatwoot/chatwoot:latest
+          image: docker.m.daocloud.io/chatwoot/chatwoot:latest
           imagePullPolicy: IfNotPresent
           command: ["bundle", "exec", "rails", "db:chatwoot_prepare"]
           envFrom:
@@ -71,7 +71,7 @@ spec:
               value: redis://:$(REDIS_PASSWORD)@chatwoot-redis:6379
       containers:
         - name: rails
-          image: chatwoot/chatwoot:latest
+          image: docker.m.daocloud.io/chatwoot/chatwoot:latest
           imagePullPolicy: IfNotPresent
           command: ["bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0"]
           ports:
@@ -153,7 +153,7 @@ spec:
     spec:
       containers:
         - name: sidekiq
-          image: chatwoot/chatwoot:latest
+          image: docker.m.daocloud.io/chatwoot/chatwoot:latest
           imagePullPolicy: IfNotPresent
           command: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
           envFrom:

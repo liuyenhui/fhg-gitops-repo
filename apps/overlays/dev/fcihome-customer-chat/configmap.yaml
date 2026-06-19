@@ -8,7 +8,7 @@ data:
   CHATWOOT_BASE_URL: https://chat.fcihome.com
   BRIDGE_PUBLIC_BASE_URL: https://feishu.fcihome.com
   CHATWOOT_ACCOUNT_ID: "1"
-  CHATWOOT_INBOX_ID: "1"
+  CHATWOOT_INBOX_ID: "2"
   POSTGRES_DATABASE: chatwoot
   POSTGRES_USERNAME: postgres
   POSTGRES_HOST: chatwoot-postgres

@@ -59,6 +59,8 @@ spec:
               value: kubernetes
             - name: FRONTEND_URL
               value: https://chat.fcihome.com
+            - name: ENABLE_RACK_ATTACK_WIDGET_API
+              value: "false"
             - name: SECRET_KEY_BASE
               valueFrom:
                 secretKeyRef:
@@ -96,6 +98,8 @@ spec:
               value: kubernetes
             - name: FRONTEND_URL
               value: https://chat.fcihome.com
+            - name: ENABLE_RACK_ATTACK_WIDGET_API
+              value: "false"
             - name: FORCE_SSL
               value: "false"
             - name: ENABLE_ACCOUNT_SIGNUP
@@ -182,6 +186,8 @@ spec:
               value: kubernetes
             - name: FRONTEND_URL
               value: https://chat.fcihome.com
+            - name: ENABLE_RACK_ATTACK_WIDGET_API
+              value: "false"
             - name: SECRET_KEY_BASE
               valueFrom:
                 secretKeyRef:

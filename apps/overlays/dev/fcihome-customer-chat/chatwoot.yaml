@@ -44,7 +44,7 @@ spec:
         - name: aliyun-registry-auth
       initContainers:
         - name: db-prepare
-          image: localhost/chatwoot:latest-amd64-20260619
+          image: docker.m.daocloud.io/chatwoot/chatwoot:latest
           imagePullPolicy: Never
           command: ["bundle", "exec", "rails", "db:chatwoot_prepare"]
           envFrom:
@@ -80,7 +80,7 @@ spec:
               value: redis://:$(REDIS_PASSWORD)@chatwoot-redis:6379
       containers:
         - name: rails
-          image: localhost/chatwoot:latest-amd64-20260619
+          image: docker.m.daocloud.io/chatwoot/chatwoot:latest
           imagePullPolicy: Never
           command: ["bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0"]
           ports:
@@ -171,7 +171,7 @@ spec:
         - name: aliyun-registry-auth
       containers:
         - name: sidekiq
-          image: localhost/chatwoot:latest-amd64-20260619
+          image: docker.m.daocloud.io/chatwoot/chatwoot:latest
           imagePullPolicy: Never
           command: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
           envFrom:

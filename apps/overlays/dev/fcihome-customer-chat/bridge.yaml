@@ -39,7 +39,7 @@ spec:
         - name: aliyun-registry-auth
       containers:
         - name: bridge
-          image: registry.cn-beijing.aliyuncs.com/threepeople/fcihome-chatwoot-feishu-bridge:20260619-context-reply-482dca5
+          image: registry.cn-beijing.aliyuncs.com/threepeople/fcihome-chatwoot-feishu-bridge:20260619-public-chat-0352b35
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -95,6 +95,11 @@ spec:
                 configMapKeyRef:
                   name: fcihome-customer-chat-config
                   key: CHATWOOT_ACCOUNT_ID
+            - name: CHATWOOT_INBOX_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: fcihome-customer-chat-config
+                  key: CHATWOOT_INBOX_ID
             - name: CHATWOOT_API_ACCESS_TOKEN
               valueFrom:
                 secretKeyRef:

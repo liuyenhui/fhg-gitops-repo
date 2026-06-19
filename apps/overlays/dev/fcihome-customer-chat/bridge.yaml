@@ -39,7 +39,7 @@ spec:
         - name: aliyun-registry-auth
       containers:
         - name: bridge
-          image: registry.cn-beijing.aliyuncs.com/threepeople/fcihome-chatwoot-feishu-bridge:20260619-public-chat-0352b35
+          image: registry.cn-beijing.aliyuncs.com/threepeople/fcihome-chatwoot-feishu-bridge:20260619-public-chat-0352b35-r2
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

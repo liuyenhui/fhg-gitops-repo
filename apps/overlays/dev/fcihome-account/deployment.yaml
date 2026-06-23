@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fcihome-account
+spec:
+  strategy:
+    type: Recreate
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: fcihome-account
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: fcihome-account
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+      containers:
+        - name: account
+          image: ghcr.io/liuyenhui/fcihome-account:fcihome-account-dev-20260623-1705
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: fcihome-account-config
+          env:
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: fcihome-account-runtime
+                  key: SECRET_KEY
+                  optional: true
+            - name: WECHAT_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: fcihome-account-runtime
+                  key: WECHAT_CLIENT_ID
+                  optional: true
+            - name: WECHAT_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: fcihome-account-runtime
+                  key: WECHAT_CLIENT_SECRET
+                  optional: true
+          volumeMounts:
+            - name: account-data
+              mountPath: /data
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      volumes:
+        - name: account-data
+          persistentVolumeClaim:
+            claimName: fcihome-account-data

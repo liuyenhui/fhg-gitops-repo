@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fcihome-account-config
+data:
+  ISSUER: https://account.fcihome.com
+  DATABASE_URL: sqlite:////data/fcihome-account.sqlite
+  WECHAT_REDIRECT_URI: https://account.fcihome.com/providers/wechat/callback
+  ACCOUNT_COOKIE_SECURE: "true"

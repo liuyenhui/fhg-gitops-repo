@@ -23,7 +23,7 @@ spec:
         fsGroup: 65532
       containers:
         - name: account
-          image: registry.cn-beijing.aliyuncs.com/threepeople/fcihome-account:fcihome-account-dev-20260623-1705
+          image: registry.cn-beijing.aliyuncs.com/threepeople/fcihome-account:fcihome-account-dev-20260623-1705-amd64
           imagePullPolicy: Always
           ports:
             - name: http

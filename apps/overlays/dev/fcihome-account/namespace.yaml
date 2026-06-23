@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fcihome-account
+  labels:
+    app.kubernetes.io/name: fcihome-account
+    app.kubernetes.io/part-of: fcihome-identity

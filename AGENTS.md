@@ -73,6 +73,8 @@ KUBECONFIG=$HOME/.kube/bpg-debian12-master-public.yaml kubectl -n ecommerce-cs-a
 
 注意：已验证节点通过代理访问 registry API 可通，但大镜像 layer 拉取在当前国内网络下仍可能超时。用户明确要求“不要本机 docker push”时，不要从本机向远端 registry 推镜像；优先使用 CI/GitHub Actions 发布到 GHCR，或临时把已构建镜像导入目标节点 containerd 作为应急部署手段。
 
+Grafana / Prometheus 这类 monitoring HelmRepository 仍依赖外部 chart index，属于 Flux source-controller 出网问题；它们已在 `infrastructure/controllers/monitoring/repositories.yaml` 显式设置 `timeout: 5m`。若仍因中国网络失败，优先处理集群侧代理、OCI 镜像源或内部缓存，不要把 monitoring source 同步失败和 `ecommerce-cs-agent` 应用 release gate 混为同一类失败。
+
 ## Secret 规则
 
 - 不要把 Secret 明文或 base64 后的明文提交到 Git。

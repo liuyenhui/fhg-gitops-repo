@@ -35,3 +35,12 @@ patches:
       kind: Deployment
       name: notification-controller
     patch: *fluxProxyPatch
+  - target:
+      kind: Deployment
+      name: source-controller
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: GODEBUG
+          value: http2client=0

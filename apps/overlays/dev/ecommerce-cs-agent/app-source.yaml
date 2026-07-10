@@ -4,6 +4,7 @@ metadata:
   name: ecommerce-cs-agent-app
 spec:
   interval: 1m
+  timeout: 5m
   url: https://github.com/liuyenhui/ecommerce-cs-agent.git
   ref:
     branch: main

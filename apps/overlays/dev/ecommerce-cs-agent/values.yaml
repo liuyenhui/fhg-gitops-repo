@@ -11,6 +11,7 @@ proxy:
 api:
   replicas: 1
   envFromSecret: ecommerce-cs-agent-runtime
+  llmNodeBindingEnabled: true
   image:
     repository: registry.cn-beijing.aliyuncs.com/threepeople/ecommerce-cs-agent-api
     tag: sha-22d23056735f

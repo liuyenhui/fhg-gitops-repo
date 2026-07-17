@@ -9,12 +9,13 @@ proxy:
   noProxy: localhost,127.0.0.1,.svc,.cluster.local,postgres.ecommerce-cs-agent-dev.svc.cluster.local,minio.ecommerce-cs-agent-dev.svc.cluster.local
 
 api:
-  replicas: 1
+  replicas: 2
+  decisionMaxConcurrency: 4
   envFromSecret: ecommerce-cs-agent-runtime
   llmNodeBindingEnabled: true
   image:
     repository: registry.cn-beijing.aliyuncs.com/threepeople/ecommerce-cs-agent-api
-    tag: sha-22d23056735f
+    tag: sha-7060ceba881f
     pullPolicy: IfNotPresent
   service:
     port: 8000
@@ -27,7 +28,7 @@ admin:
   replicas: 1
   image:
     repository: registry.cn-beijing.aliyuncs.com/threepeople/ecommerce-cs-agent-admin
-    tag: sha-22d23056735f
+    tag: sha-7060ceba881f
     pullPolicy: IfNotPresent
   service:
     port: 8080

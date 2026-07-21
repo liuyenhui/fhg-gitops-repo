@@ -15,7 +15,7 @@ api:
   llmNodeBindingEnabled: true
   image:
     repository: registry.cn-beijing.aliyuncs.com/threepeople/ecommerce-cs-agent-api
-    tag: sha-cf96d8fccf03
+    tag: sha-70829b7d430b
     pullPolicy: IfNotPresent
   service:
     port: 8000
@@ -28,7 +28,7 @@ admin:
   replicas: 1
   image:
     repository: registry.cn-beijing.aliyuncs.com/threepeople/ecommerce-cs-agent-admin
-    tag: sha-cf96d8fccf03
+    tag: sha-70829b7d430b
     pullPolicy: IfNotPresent
   service:
     port: 8080
